@@ -21,20 +21,69 @@ export const SupabaseLeaderboard = ({
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const loadLeaderboard = async () => {
-      try {
-        const data = await getLeaderboard();
-        setEntries(data);
-      } catch (error) {
-        console.error('Erro ao carregar leaderboard:', error);
-      } finally {
-        setLoading(false);
+  const loadLeaderboard = async () => {
+    console.log('Carregando leaderboard...');
+    try {
+      const data = await getLeaderboard();
+      console.log('Dados recebidos:', data);
+      
+      // Validar estrutura dos dados
+      if (!data || !Array.isArray(data)) {
+        console.warn('Dados inválidos do leaderboard:', data);
+        setEntries([]);
+        return;
       }
-    };
+      
+      // Validar cada entrada com estrutura completa
+      const validEntries = data.filter(entry => {
+        const isValid = entry && 
+                       typeof entry === 'object' &&
+                       typeof entry.id === 'string' && 
+                       typeof entry.name === 'string' && 
+                       typeof entry.score === 'number' &&
+                       Array.isArray(entry.badges) &&
+                       entry.timestamp !== null && entry.timestamp !== undefined;
+        
+        if (!isValid) {
+          console.warn('Entrada inválida ignorada:', entry, {
+            hasId: typeof entry?.id === 'string',
+            hasName: typeof entry?.name === 'string',
+            hasScore: typeof entry?.score === 'number',
+            hasBadges: Array.isArray(entry?.badges),
+            hasTimestamp: entry?.timestamp !== null && entry?.timestamp !== undefined
+          });
+        }
+        return isValid;
+      });
+      
+      console.log(`Entradas válidas: ${validEntries.length}/${data.length}`);
+      setEntries(validEntries);
+    } catch (error) {
+      console.error('Erro ao carregar leaderboard:', error);
+      setEntries([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     loadLeaderboard();
+
+    // Atualiza a cada 30 segundos
+    const interval = setInterval(() => {
+      console.log('Atualizando leaderboard...');
+      loadLeaderboard();
+    }, 30000);
+
+    return () => clearInterval(interval);
   }, []);
+
+  const handleViewProfile = (entry: LeaderboardEntry) => {
+    if (onViewProfile) {
+      console.log('Visualizando perfil:', entry);
+      onViewProfile(entry);
+    }
+  };
 
   if (loading) {
     return (
@@ -51,7 +100,7 @@ export const SupabaseLeaderboard = ({
     <LeaderboardDisplay
       entries={entries}
       onBack={onBack}
-      onViewProfile={onViewProfile}
+      onViewProfile={handleViewProfile}
       showAdminControls={showAdminControls}
       onClearRanking={onClearRanking}
       onDownloadCSV={onDownloadCSV}

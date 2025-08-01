@@ -47,6 +47,7 @@ export const LeaderboardDisplay = ({
   };
 
   const getProfileEmoji = (profileType: string) => {
+    if (!profileType || typeof profileType !== 'string') return '👔';
     switch (profileType) {
       case 'innovator': return '🚀';
       case 'strategist': return '🎯';
@@ -58,7 +59,138 @@ export const LeaderboardDisplay = ({
     }
   };
 
-  const sortedEntries = [...entries].sort((a, b) => b.score - a.score).slice(0, maxEntries || entries.length);
+  const sortedEntries = [...entries].filter(entry => 
+    entry && 
+    typeof entry === 'object' && 
+    typeof entry.score === 'number' && 
+    typeof entry.name === 'string'
+  ).sort((a, b) => (b?.score || 0) - (a?.score || 0)).slice(0, maxEntries || entries.length);
+
+  if (!entries || entries.length === 0) {
+    return (
+      <div className={cn("min-h-screen bg-background py-8", className)}>
+        <div className="container mx-auto px-4 max-w-4xl">
+          {/* Header - Always visible */}
+          <div className="text-center mb-8 animate-bounce-in">
+            <div className="mx-auto w-20 h-20 bg-inci-blue rounded-full flex items-center justify-center mb-4">
+              <Trophy className="w-10 h-10 text-white" />
+            </div>
+            <h1 className="text-3xl font-bold text-inci-blue mb-2">
+              🏆 Ranking do Evento
+            </h1>
+            <p className="text-lg text-muted-foreground">
+              Seja o primeiro a participar!
+            </p>
+          </div>
+
+          {/* Empty Podium Placeholder */}
+          <div className="mb-8">
+            <p className="text-center text-sm text-muted-foreground mb-4">
+              💡 Complete a simulação para aparecer no ranking
+            </p>
+            <div className="grid grid-cols-3 gap-4 items-end mb-6 opacity-50">
+              <Card className="border-2 border-gray-300 shadow-lg">
+                <CardContent className="p-4 text-center">
+                  <div className="mb-2">🥈</div>
+                  <div className="font-bold text-lg text-gray-600">#2</div>
+                  <div className="font-semibold text-gray-400 truncate">
+                    Aguardando...
+                  </div>
+                  <div className="text-2xl font-bold text-gray-300">---</div>
+                </CardContent>
+              </Card>
+
+              <Card className="border-2 border-inci-yellow shadow-xl transform scale-105">
+                <CardContent className="p-4 text-center">
+                  <div className="mb-2">👑</div>
+                  <div className="font-bold text-xl text-inci-blue">#1</div>
+                  <div className="font-bold text-inci-blue truncate">
+                    Você pode estar aqui!
+                  </div>
+                  <div className="text-3xl font-bold text-inci-blue">???</div>
+                </CardContent>
+              </Card>
+
+              <Card className="border-2 border-amber-400 shadow-lg">
+                <CardContent className="p-4 text-center">
+                  <div className="mb-2">🥉</div>
+                  <div className="font-bold text-lg text-amber-600">#3</div>
+                  <div className="font-semibold text-gray-400 truncate">
+                    Aguardando...
+                  </div>
+                  <div className="text-2xl font-bold text-gray-300">---</div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          {/* Stats - All zero */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <Card className="text-center p-4">
+              <div className="text-2xl font-bold text-inci-blue">0</div>
+              <div className="text-sm text-muted-foreground">Participantes</div>
+            </Card>
+            <Card className="text-center p-4">
+              <div className="text-2xl font-bold text-inci-blue">0</div>
+              <div className="text-sm text-muted-foreground">Média</div>
+            </Card>
+            <Card className="text-center p-4">
+              <div className="text-2xl font-bold text-inci-blue">0</div>
+              <div className="text-sm text-muted-foreground">Maior Score</div>
+            </Card>
+            <Card className="text-center p-4">
+              <div className="text-2xl font-bold text-inci-blue">0</div>
+              <div className="text-sm text-muted-foreground">Inovadores</div>
+            </Card>
+          </div>
+
+          {/* Call to Action */}
+          <Card className="mb-8 border-2 border-inci-blue/30 shadow-lg bg-gradient-to-r from-inci-blue/5 to-inci-yellow/5">
+            <CardContent className="py-8">
+              <div className="text-center space-y-4">
+                <div className="mx-auto w-16 h-16 bg-inci-blue/10 rounded-full flex items-center justify-center mb-4">
+                  <Trophy className="w-8 h-8 text-inci-blue" />
+                </div>
+                <h3 className="text-xl font-bold text-inci-blue">
+                  Seja o Primeiro!
+                </h3>
+                <p className="text-muted-foreground mb-6">
+                  Complete a simulação de tomada de decisão e conquiste o 1º lugar no ranking do evento.
+                </p>
+                <Button 
+                  onClick={() => {
+                    playSound('success');
+                    onBack();
+                  }}
+                  variant="inci"
+                  size="lg"
+                  className="min-w-[200px]"
+                >
+                  <Trophy className="w-4 h-4 mr-2" />
+                  Começar Simulação
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Footer */}
+          <div className="text-center">
+            <Button 
+              onClick={() => {
+                playSound('button');
+                onBack();
+              }}
+              variant="inciOutline"
+              size="lg"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Voltar ao Início
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={cn("min-h-screen bg-background py-8", className)}>
@@ -84,29 +216,38 @@ export const LeaderboardDisplay = ({
                   </p>
                   <div className="grid grid-cols-3 gap-4 items-end mb-6">
               {/* 2nd Place */}
-              <Card 
-                className="border-2 border-gray-300 shadow-lg cursor-pointer hover:bg-inci-blue/5"
-                onClick={() => onViewProfile?.(sortedEntries[1])}
-              >
-                <CardContent className="p-4 text-center">
-                  <div className="mb-2">{getRankIcon(2)}</div>
-                  <div className="font-bold text-lg text-gray-600">#2</div>
-                  <div className="font-semibold text-inci-blue truncate">
-                    {sortedEntries[1].name}
-                  </div>
-                  <div className="text-2xl font-bold text-gray-600">
-                    {sortedEntries[1].score}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    {getProfileEmoji(sortedEntries[1].profileType)}
-                  </div>
-                </CardContent>
-              </Card>
+              {sortedEntries.length >= 2 && (
+                <Card 
+                  className="border-2 border-gray-300 shadow-lg cursor-pointer hover:bg-inci-blue/5"
+                  onClick={() => {
+                    console.log('Clicando no 2º lugar:', sortedEntries[1].name);
+                    console.log('onViewProfile disponível:', !!onViewProfile);
+                    onViewProfile?.(sortedEntries[1]);
+                  }}
+                >
+                  <CardContent className="p-4 text-center">
+                    <div className="mb-2">{getRankIcon(2)}</div>
+                    <div className="font-bold text-lg text-gray-600">#2</div>
+                    <div className="font-semibold text-inci-blue truncate">
+                      {sortedEntries[1].name}
+                    </div>
+                    <div className="text-2xl font-bold text-gray-600">
+                      {sortedEntries[1].score}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      {getProfileEmoji(sortedEntries[1].profileType)}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
               {/* 1st Place */}
               <Card 
                 className="border-2 border-inci-yellow shadow-xl transform scale-105 cursor-pointer hover:bg-inci-blue/5"
-                onClick={() => onViewProfile?.(sortedEntries[0])}
+                onClick={() => {
+                  console.log('Clicando no 1º lugar:', sortedEntries[0].name);
+                  onViewProfile?.(sortedEntries[0]);
+                }}
               >
                 <CardContent className="p-4 text-center">
                   <div className="mb-2">{getRankIcon(1)}</div>
@@ -124,24 +265,29 @@ export const LeaderboardDisplay = ({
               </Card>
 
               {/* 3rd Place */}
-              <Card 
-                className="border-2 border-amber-400 shadow-lg cursor-pointer hover:bg-inci-blue/5"
-                onClick={() => onViewProfile?.(sortedEntries[2])}
-              >
-                <CardContent className="p-4 text-center">
-                  <div className="mb-2">{getRankIcon(3)}</div>
-                  <div className="font-bold text-lg text-amber-600">#3</div>
-                  <div className="font-semibold text-inci-blue truncate">
-                    {sortedEntries[2].name}
-                  </div>
-                  <div className="text-2xl font-bold text-amber-600">
-                    {sortedEntries[2].score}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    {getProfileEmoji(sortedEntries[2].profileType)}
-                  </div>
-                </CardContent>
-              </Card>
+              {sortedEntries.length >= 3 && (
+                <Card 
+                  className="border-2 border-amber-400 shadow-lg cursor-pointer hover:bg-inci-blue/5"
+                  onClick={() => {
+                    console.log('Clicando no 3º lugar:', sortedEntries[2].name);
+                    onViewProfile?.(sortedEntries[2]);
+                  }}
+                >
+                  <CardContent className="p-4 text-center">
+                    <div className="mb-2">{getRankIcon(3)}</div>
+                    <div className="font-bold text-lg text-amber-600">#3</div>
+                    <div className="font-semibold text-inci-blue truncate">
+                      {sortedEntries[2].name}
+                    </div>
+                    <div className="text-2xl font-bold text-amber-600">
+                      {sortedEntries[2].score}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      {getProfileEmoji(sortedEntries[2].profileType)}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </div>
         )}
@@ -151,7 +297,7 @@ export const LeaderboardDisplay = ({
           <CardHeader className="bg-inci-blue/10">
             <CardTitle className="flex items-center justify-between text-inci-blue">
               <span>Classificação Completa</span>
-              <RefreshCw className="w-5 h-5 animate-spin" />
+              {sortedEntries.length > 0 && <RefreshCw className="w-5 h-5 animate-spin" />}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
@@ -163,7 +309,12 @@ export const LeaderboardDisplay = ({
                 return (
                   <div
                     key={entry.id}
-                    onClick={() => onViewProfile?.(entry)}
+                    onClick={() => {
+                      console.log('Clicando no participante:', entry.name, 'ID:', entry.id);
+                      console.log('Entry completo:', entry);
+                      console.log('onViewProfile disponível:', !!onViewProfile);
+                      onViewProfile?.(entry);
+                    }}
                     className={cn(
                       "flex items-center gap-4 p-4 transition-all hover:bg-muted/50 cursor-pointer hover:shadow-md rounded-lg",
                       isTopThree && "bg-inci-blue/5",
@@ -192,12 +343,12 @@ export const LeaderboardDisplay = ({
                       </div>
                       <div className="text-sm text-muted-foreground">
                         {getProfileEmoji(entry.profileType)} {
-                          entry.profileType === 'innovator' ? 'Inovador' :
-                          entry.profileType === 'strategist' ? 'Estrategista' :
-                          entry.profileType === 'operational' ? 'Operacional' :
-                          entry.profileType === 'sales' ? 'Vendedor' :
-                          entry.profileType === 'visionary' ? 'Visionário' :
-                          entry.profileType === 'conservative' ? 'Conservador' :
+                          entry?.profileType === 'innovator' ? 'Inovador' :
+                          entry?.profileType === 'strategist' ? 'Estrategista' :
+                          entry?.profileType === 'operational' ? 'Operacional' :
+                          entry?.profileType === 'sales' ? 'Vendedor' :
+                          entry?.profileType === 'visionary' ? 'Visionário' :
+                          entry?.profileType === 'conservative' ? 'Conservador' :
                           'Equilibrado'
                         }
                       </div>
@@ -224,11 +375,14 @@ export const LeaderboardDisplay = ({
 
                     {/* Badges */}
                     <div className="flex gap-1">
-                      {entry.badges.slice(0, 2).map((badge) => (
-                        <span key={badge.id} className="text-lg" title={badge.name}>
-                          {badge.icon}
-                        </span>
-                      ))}
+                      {Array.isArray(entry.badges) && entry.badges.slice(0, 2).map((badge) => {
+                        if (!badge || typeof badge !== 'object') return null;
+                        return (
+                          <span key={badge.id || `badge-${Math.random()}`} className="text-lg" title={badge.name || 'Badge'}>
+                            {typeof badge.icon === 'string' ? badge.icon : '🏆'}
+                          </span>
+                        );
+                      })}
                     </div>
                   </div>
                 );

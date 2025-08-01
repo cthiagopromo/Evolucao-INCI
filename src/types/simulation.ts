@@ -34,8 +34,9 @@ export interface UserProfile {
   cargo?: string;
   decisions: UserDecision[];
   totalScore: number;
-  profileType: 'innovator' | 'strategist' | 'operational' | 'sales' | 'visionary' | 'conservative';
+  profileType: 'innovator' | 'strategist' | 'balanced' | 'operational' | 'sales' | 'visionary' | 'conservative';
   badges: Badge[];
+  recommendations: string[];
   completedAt: Date;
 }
 
@@ -55,21 +56,28 @@ export interface LeaderboardEntry {
   empresa?: string;
   cargo?: string;
   score: number;
-  profileType: 'innovator' | 'strategist' | 'operational' | 'sales' | 'visionary' | 'conservative';
+  profileType: 'innovator' | 'strategist' | 'balanced' | 'operational' | 'sales' | 'visionary' | 'conservative';
   badges: Badge[];
   timestamp: Date;
+  decisions: UserDecision[];
 }
 
 export const CategoryIcons = {
   financial: '💰',
   marketing: '📢',
   hr: '👥',
-  strategy: '⚙️'
+  strategy: '⚙️',
+  operations: '🏭',
+  customer: '😊',
+  technology: '💻'
 } as const;
 
 export const CategoryLabels = {
   financial: 'Financeiro',
   marketing: 'Marketing',
   hr: 'Recursos Humanos',
-  strategy: 'Estratégia'
+  strategy: 'Estratégia',
+  operations: 'Operações',
+  customer: 'Atendimento',
+  technology: 'Tecnologia'
 } as const;

@@ -2,14 +2,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { UserProfile, Badge as BadgeType, CategoryIcons } from '@/types/simulation';
+import { UserProfile, Badge as BadgeType, CategoryIcons, CategoryLabels, UserDecision } from '@/types/simulation';
 import { cn } from '@/lib/utils';
-import { Trophy, Star, Target, TrendingUp, RotateCcw } from 'lucide-react';
+import { Trophy, Star, TrendingUp, RotateCcw } from 'lucide-react';
 import { useSound } from '@/hooks/useSound';
+import { dilemmas } from '@/data/dilemmas';
 
 interface ResultsDashboardProps {
   profile: UserProfile;
-  onRestart: () => void;
+  onRestart?: () => void;
   onViewRanking: () => void;
   onBack?: () => void;
   className?: string;
@@ -44,30 +45,31 @@ export const ResultsDashboard = ({ profile, onRestart, onViewRanking, onBack, cl
   const getProfileDescription = (profileType: string) => {
     switch (profileType) {
       case 'innovator': 
-        return 'Você tende a tomar decisões ousadas e inovadoras, buscando alto impacto e crescimento acelerado.';
+        return 'Você transforma ideias em oportunidades de negócio';
       case 'strategist': 
-        return 'Você prefere decisões seguras e bem fundamentadas, priorizando estabilidade e redução de riscos.';
+        return 'Você tem visão macro e foco em resultados de longo prazo';
       case 'operational': 
-        return 'Você encontra o equilíbrio ideal entre inovação e cautela, adaptando-se ao contexto.';
+        return 'Você executa com excelência e busca eficiência máxima';
       case 'sales': 
-        return 'Você tende a tomar decisões orientadas a resultados e vendas, com foco em crescimento comercial.';
+        return 'Você converte relacionamentos em resultados comerciais';
       case 'visionary': 
-        return 'Você tem uma visão audaciosa e está disposto a assumir grandes riscos para alcançar grandes conquistas.';
+        return 'Você enxerga o futuro e inspira transformações';
       case 'conservative': 
-        return 'Você prioriza a segurança e o ROI garantido, tomando decisões cautelosas e bem calculadas.';
+        return 'Você prioriza segurança e resultados comprovados';
       default: 
         return 'Você demonstra habilidades de tomada de decisão em cenários empresariais.';
     }
   };
 
-  const categoryStats = profile.decisions.reduce((acc, decision) => {
-    // Esta lógica seria expandida com dados reais dos dilemas
-    acc.financial = acc.financial || 0;
-    acc.marketing = acc.marketing || 0;
-    acc.hr = acc.hr || 0;
-    acc.strategy = acc.strategy || 0;
+  const categoryStats = (profile.decisions || []).reduce((acc, decision) => {
+    const dilemma = dilemmas.find(d => d.id === decision.dilemmaId);
+    if (dilemma) {
+      acc[dilemma.category] = (acc[dilemma.category] || 0) + 1;
+    }
     return acc;
   }, {} as Record<string, number>);
+
+
 
   return (
     <div className={cn("min-h-screen bg-background py-8", className)}>
@@ -116,9 +118,7 @@ export const ResultsDashboard = ({ profile, onRestart, onViewRanking, onBack, cl
                 <div key={category} className="text-center p-3 bg-muted/30 rounded-lg">
                   <div className="text-2xl mb-1">{icon}</div>
                   <div className="text-sm text-muted-foreground">
-                    {category === 'financial' ? 'Finanças' :
-                     category === 'marketing' ? 'Marketing' :
-                     category === 'hr' ? 'RH' : 'Estratégia'}
+                    {CategoryLabels[category]}
                   </div>
                   <Progress 
                     value={(categoryStats[category] || 0) * 10} 
@@ -140,21 +140,29 @@ export const ResultsDashboard = ({ profile, onRestart, onViewRanking, onBack, cl
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {profile.badges.map((badge) => (
-                <div 
-                  key={badge.id}
-                  className="flex items-center gap-3 p-4 bg-muted/30 rounded-lg border border-inci-blue/20"
-                >
-                  <span className="text-2xl">{badge.icon}</span>
-                  <div>
-                    <h4 className="font-semibold text-inci-blue">{badge.name}</h4>
-                    <p className="text-sm text-muted-foreground">{badge.description}</p>
+              {(profile.badges || []).length > 0 ? (
+                profile.badges.map((badge) => (
+                  <div 
+                    key={badge.id}
+                    className="flex items-center gap-3 p-4 bg-muted/30 rounded-lg border border-inci-blue/20"
+                  >
+                    <span className="text-2xl">{badge.icon}</span>
+                    <div>
+                      <h4 className="font-semibold text-inci-blue">{badge.name}</h4>
+                      <p className="text-sm text-muted-foreground">{badge.description}</p>
+                    </div>
                   </div>
+                ))
+              ) : (
+                <div className="col-span-full text-center py-8 text-muted-foreground">
+                  <p>Nenhuma conquista desbloqueada</p>
                 </div>
-              ))}
+              )}
             </div>
           </CardContent>
         </Card>
+
+
 
         {/* Recommendations */}
         <Card className="mb-8">
@@ -170,48 +178,12 @@ export const ResultsDashboard = ({ profile, onRestart, onViewRanking, onBack, cl
                 💡 Baseado no seu perfil, recomendamos:
               </h4>
               <ul className="space-y-2 text-sm text-foreground">
-                {profile.profileType === 'innovator' ? (
-                  <>
-                    <li>• Plataforma White Label para monetizar seu conhecimento</li>
-                    <li>• Zamply Produções para criar conteúdo educacional</li>
-                    <li>• Recurso de IA para vendas automatizadas</li>
-                  </>
-                ) : profile.profileType === 'strategist' ? (
-                  <>
-                    <li>• Plataforma INCI de Educação Corporativa para capacitar líderes</li>
-                    <li>• Locação de Sala de Reunião Sede para encontros estratégicos</li>
-                    <li>• Zamply Eventos para lançamentos corporativos</li>
-                  </>
-                ) : profile.profileType === 'operational' ? (
-                  <>
-                    <li>• Plataforma INCI de Educação Corporativa para treinar equipes</li>
-                    <li>• Sala Comercial Pátio para operações do dia a dia</li>
-                    <li>• Zamply Produções para materiais de treinamento</li>
-                  </>
-                ) : profile.profileType === 'sales' ? (
-                  <>
-                    <li>• Recurso de IA para vendas para qualificar leads</li>
-                    <li>• Plataforma White Label para cursos de vendas</li>
-                    <li>• Zamply Eventos para eventos comerciais</li>
-                  </>
-                ) : profile.profileType === 'visionary' ? (
-                  <>
-                    <li>• Zamply Eventos para grandes lançamentos</li>
-                    <li>• Plataforma White Label para escalar conhecimento</li>
-                    <li>• Locação de Sala de Reunião Sede para apresentações</li>
-                  </>
-                ) : profile.profileType === 'conservative' ? (
-                  <>
-                    <li>• Plataforma INCI de Educação Corporativa (baixo risco)</li>
-                    <li>• Sala Comercial Pátio para testes de mercado</li>
-                    <li>• Recurso de IA para vendas (ROI garantido)</li>
-                  </>
+                {(profile.recommendations || []).length > 0 ? (
+                  profile.recommendations.map((recommendation, index) => (
+                    <li key={index}>• {recommendation}</li>
+                  ))
                 ) : (
-                  <>
-                    <li>• Programa Completo de Liderança Empresarial</li>
-                    <li>• Consultoria Personalizada Multi-área</li>
-                    <li>• Workshop de Tomada de Decisão Estratégica</li>
-                  </>
+                  <li>Sem recomendações disponíveis para este perfil</li>
                 )}
               </ul>
             </div>
@@ -274,17 +246,19 @@ export const ResultsDashboard = ({ profile, onRestart, onViewRanking, onBack, cl
               Voltar ao Ranking
             </Button>
           )}
-          <Button 
-            onClick={() => {
-              playSound('button');
-              onRestart();
-            }}
-            variant="inciOutline"
-            size="lg"
-          >
-            <RotateCcw className="w-4 h-4 mr-2" />
-            Tentar Novamente
-          </Button>
+          {onRestart && (
+            <Button 
+              onClick={() => {
+                playSound('button');
+                onRestart();
+              }}
+              variant="inciOutline"
+              size="lg"
+            >
+              <RotateCcw className="w-4 h-4 mr-2" />
+              Tentar Novamente
+            </Button>
+          )}
         </div>
       </div>
     </div>

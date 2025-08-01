@@ -2,8 +2,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dilemma, DilemmaOption, CategoryIcons, CategoryLabels } from '@/types/simulation';
-import { cn } from '@/lib/utils';
+import { cn, shuffleArray } from '@/lib/utils';
 import { useSound } from '@/hooks/useSound';
+import { useMemo } from 'react';
 
 interface DilemmaCardProps {
   dilemma: Dilemma;
@@ -15,6 +16,9 @@ export const DilemmaCard = ({ dilemma, onSelectOption, className }: DilemmaCardP
   const { playSound } = useSound();
   const categoryIcon = CategoryIcons[dilemma.category];
   const categoryLabel = CategoryLabels[dilemma.category];
+  
+  // Randomizar ordem das opções para cada novo participante
+  const shuffledOptions = useMemo(() => shuffleArray(dilemma.options), [dilemma.id]);
 
   const getRiskColor = (riskLevel: 'low' | 'medium' | 'high') => {
     switch (riskLevel) {
@@ -63,7 +67,7 @@ export const DilemmaCard = ({ dilemma, onSelectOption, className }: DilemmaCardP
           </h4>
           
           <div className="grid gap-3 sm:gap-4 md:gap-6">
-            {dilemma.options.map((option) => (
+            {shuffledOptions.map((option) => (
               <Button
                 key={option.id}
                 variant="outline"

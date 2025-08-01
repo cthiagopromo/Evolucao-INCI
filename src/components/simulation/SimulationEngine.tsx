@@ -13,17 +13,21 @@ import {
   calculateScore, 
   determineProfileType, 
   assignBadges, 
+  generateRecommendations,
   saveToLeaderboard, 
   getLeaderboard,
-  shuffleArray 
+  shuffleArray,
+  testSupabaseConnection
 } from '@/utils/simulation';
 import { cn } from '@/lib/utils';
 import { useSound } from '@/hooks/useSound';
+import { useToast } from '@/hooks/use-toast';
 
 type SimulationState = 'registration' | 'simulation' | 'feedback' | 'results' | 'leaderboard' | 'profile-view' | 'loading';
 
 export const SimulationEngine = () => {
   const { playSound } = useSound();
+  const { toast } = useToast();
   const [state, setState] = useState<SimulationState>('registration');
   const [userData, setUserData] = useState<{ name: string; email: string; whatsapp: string } | null>(null);
   const [currentDilemmaIndex, setCurrentDilemmaIndex] = useState(0);
@@ -121,20 +125,52 @@ export const SimulationEngine = () => {
       totalScore,
       profileType,
       badges: [], // Será preenchido a seguir
+      recommendations: [], // Será preenchido a seguir
       completedAt: new Date()
     };
 
     profile.badges = assignBadges(profile);
+    profile.recommendations = generateRecommendations(profile);
     setUserProfile(profile);
     
-    // Salvar no leaderboard (agora assíncrono)
+    // Testar conexão com Supabase antes de salvar
     try {
-      await saveToLeaderboard(profile);
+      console.log('Testando conexão com Supabase...');
+      const isConnected = await testSupabaseConnection();
+      if (!isConnected) {
+        throw new Error('Não foi possível conectar ao Supabase');
+      }
+      console.log('Conexão com Supabase estabelecida com sucesso');
+    } catch (error) {
+      console.error('Erro ao testar conexão:', error);
+    }
+
+    // Salvar no leaderboard (apenas Supabase)
+    try {
+      console.log('Salvando perfil no leaderboard...');
+      const updatedLeaderboard = await saveToLeaderboard(profile);
+      console.log('Perfil salvo com sucesso! Total de participantes:', updatedLeaderboard.length);
+      
+      toast({
+        title: "✅ Resultados salvos!",
+        description: `Seu perfil foi adicionado ao ranking com ${profile.totalScore} pontos.`,
+        duration: 3000,
+      });
+      
+      // Agora sim, mudar para loading e depois para results
+      setState('loading');
     } catch (error) {
       console.error('Erro ao salvar resultados:', error);
+      
+      toast({
+        title: "❌ Erro ao salvar",
+        description: "Não foi possível salvar seus resultados. Verifique sua conexão.",
+        duration: 5000,
+      });
+      
+      // Mesmo com erro, mostrar os resultados localmente
+      setState('loading');
     }
-    
-    // Transition handled by state
   };
 
   const handleLoadingComplete = () => {
@@ -153,9 +189,32 @@ export const SimulationEngine = () => {
     setShuffledDilemmas(shuffleArray(dilemmas));
   };
 
-  const handleViewRanking = () => {
+  const handleViewRanking = async () => {
     playSound('transition');
-    setState('leaderboard');
+    setState('loading');
+    setShowLoading(true);
+    try {
+      console.log('Carregando ranking...');
+      const data = await getLeaderboard();
+      console.log('Dados do ranking carregados:', data);
+      
+      if (!data) {
+        throw new Error('Dados do ranking não retornados');
+      }
+      
+      setLeaderboardData(data);
+      setState('leaderboard');
+    } catch (error) {
+      console.error('Erro ao carregar ranking:', error);
+      toast({
+        title: "⚠️ Erro ao carregar ranking",
+        description: "Não foi possível carregar o ranking completo. Tente novamente mais tarde.",
+        duration: 5000,
+      });
+      setState('results');
+    } finally {
+      setShowLoading(false);
+    }
   };
 
   const handleBackFromRanking = () => {
@@ -163,42 +222,70 @@ export const SimulationEngine = () => {
     setState('results');
   };
 
-  const handleViewProfile = (entry: any) => {
+  const handleViewProfile = (entry: LeaderboardEntry) => {
+    console.log('Abrindo perfil do participante:', entry);
+    playSound('transition');
+    
+    // Verificar se entry.decisions existe e é um array
+    if (!entry.decisions) {
+      console.warn('Decisões não encontradas para o participante:', entry.name);
+    }
+    
     // Converter LeaderboardEntry para UserProfile
     const profile: UserProfile = {
       id: entry.id,
       name: entry.name,
       email: entry.email || '',
       whatsapp: entry.whatsapp || '',
-      decisions: [], // Poderia ser expandido para incluir decisões se armazenadas
+      decisions: entry.decisions || [],
       totalScore: entry.score,
       profileType: entry.profileType,
-      badges: entry.badges,
-      completedAt: new Date(entry.timestamp)
+      badges: entry.badges || [],
+      recommendations: [], // Gerar recomendações dinamicamente
+      completedAt: entry.timestamp ? new Date(entry.timestamp) : new Date()
     };
     
+    // Gerar recomendações baseadas no perfil
+    profile.recommendations = generateRecommendations(profile);
+    
+    console.log('Perfil convertido:', profile);
     setViewingProfile(profile);
-    playSound('transition');
     setState('profile-view');
   };
 
   const handleBackFromProfile = () => {
     playSound('transition');
-    setState('leaderboard');
     setViewingProfile(null);
+    // Retorna para o estado anterior (leaderboard ou results)
+    setState(state === 'profile-view' ? 'leaderboard' : 'results');
   };
 
   // Refresh leaderboard data when viewing ranking
   useEffect(() => {
     if (state === 'leaderboard') {
-      getLeaderboard().then((data) => setLeaderboardData(data));
+      const loadData = async () => {
+        setShowLoading(true);
+        try {
+          const data = await getLeaderboard();
+          if (!data) {
+            throw new Error('Dados do ranking não retornados');
+          }
+          setLeaderboardData(data);
+        } catch (error) {
+          console.error('Erro ao carregar ranking:', error);
+          toast({
+            title: "⚠️ Erro ao carregar ranking",
+            description: "Não foi possível carregar o ranking completo. Tente novamente mais tarde.",
+            duration: 5000,
+          });
+          setState('results');
+        } finally {
+          setShowLoading(false);
+        }
+      };
+      loadData();
     }
-  }, [state]);
-
-  // Initialize leaderboard data on mount
-  useEffect(() => {
-    getLeaderboard().then((data) => setLeaderboardData(data));
-  }, []);
+  }, [state, toast]);
 
   
 
@@ -239,8 +326,13 @@ export const SimulationEngine = () => {
     );
   }
 
-  if (state === 'loading') {
-    return <LoadingAnimation isVisible={true} onComplete={handleLoadingComplete} />;
+  if (state === 'loading' || showLoading) {
+    return (
+      <LoadingAnimation
+        isVisible={true}
+        onComplete={handleLoadingComplete}
+      />
+    );
   }
 
   if (state === 'feedback' && currentDecision) {
@@ -270,6 +362,7 @@ export const SimulationEngine = () => {
         entries={leaderboardData}
         onBack={handleBackFromRanking}
         onViewProfile={handleViewProfile}
+        showAdminControls={false}
       />
     );
   }
@@ -278,12 +371,9 @@ export const SimulationEngine = () => {
     return (
       <ResultsDashboard
         profile={viewingProfile}
-        onRestart={handleRestart}
-        onViewRanking={() => {
-          playSound('transition');
-          setState('leaderboard');
-        }}
         onBack={handleBackFromProfile}
+        onViewRanking={handleViewRanking}
+        className="animate-fade-in"
       />
     );
   }

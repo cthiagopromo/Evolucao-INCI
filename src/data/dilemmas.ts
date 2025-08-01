@@ -14,22 +14,22 @@ export const dilemmas: Dilemma[] = [
       {
         id: 'fin-001-a',
         text: 'Demitir 30% da equipe imediatamente',
-        impact: -20,
         riskLevel: 'high',
+        impact: 15,
         consequences: 'Redução imediata de custos, mas perda de talentos e queda na moral da equipe. Risco de não conseguir atender demanda futura.'
       },
       {
         id: 'fin-001-b',
         text: 'Buscar investimento emergencial com juros altos',
-        impact: 40,
         riskLevel: 'high',
+        impact: 20,
         consequences: 'Capital para resistir à crise, mas compromete margem futura. Alto risco se a recuperação demorar.'
       },
       {
         id: 'fin-001-c',
         text: 'Renegociar prazos com fornecedores e reduzir salários temporariamente',
-        impact: 10,
         riskLevel: 'medium',
+        impact: 35,
         consequences: 'Estratégia equilibrada que preserva equipe e relacionamentos, com menor impacto financeiro.'
       }
     ]
@@ -47,22 +47,22 @@ export const dilemmas: Dilemma[] = [
       {
         id: 'mkt-001-a',
         text: 'Resposta agressiva desmentindo e processando o autor',
-        impact: -30,
         riskLevel: 'high',
+        impact: 10,
         consequences: 'Pode amplificar ainda mais a crise e gerar efeito Streisand. Risco de prolongar o problema.'
       },
       {
         id: 'mkt-001-b',
         text: 'Não se manifestar e esperar o buzz passar',
-        impact: -10,
         riskLevel: 'low',
+        impact: 25,
         consequences: 'Abordagem segura, mas pode passar impressão de descaso ou culpa.'
       },
       {
         id: 'mkt-001-c',
         text: 'Resposta transparente assumindo falhas e mostrando melhorias',
-        impact: 50,
         riskLevel: 'medium',
+        impact: 40,
         consequences: 'Chance de transformar crise em oportunidade, demonstrando maturidade e compromisso.'
       }
     ]
@@ -80,22 +80,22 @@ export const dilemmas: Dilemma[] = [
       {
         id: 'hr-001-a',
         text: 'Demitir um dos gerentes imediatamente',
-        impact: -25,
         riskLevel: 'high',
+        impact: 5,
         consequences: 'Resolve o conflito, mas perde talento valioso e pode criar clima de medo na empresa.'
       },
       {
         id: 'hr-001-b',
         text: 'Transferir um deles para outra filial',
-        impact: 15,
         riskLevel: 'medium',
+        impact: 25,
         consequences: 'Minimiza o conflito sem demissões, mas pode ser visto como fuga do problema.'
       },
       {
         id: 'hr-001-c',
         text: 'Mediação profissional com coaching executivo',
-        impact: 35,
         riskLevel: 'low',
+        impact: 35,
         consequences: 'Investe no desenvolvimento e pode fortalecer a equipe, mas demora e custa mais.'
       }
     ]
@@ -110,27 +110,27 @@ export const dilemmas: Dilemma[] = [
     timeLimit: 25,
     defaultOptionId: 'str-001-b',
     options: [
-      {
-        id: 'str-001-a',
-        text: 'Pivô completo para IA, demitindo equipe não-técnica',
-        impact: 50,
-        riskLevel: 'high',
-        consequences: 'Posicionamento de vanguarda, mas alto risco de fracasso e perda de competências atuais.'
-      },
-      {
-        id: 'str-001-b',
-        text: 'Manter estratégia atual e ignorar IA',
-        impact: -30,
-        riskLevel: 'high',
-        consequences: 'Preserva operação atual, mas risco alto de obsolescência rápida.'
-      },
-      {
-        id: 'str-001-c',
-        text: 'Integração gradual de IA mantendo core business',
-        impact: 30,
-        riskLevel: 'medium',
-        consequences: 'Evolução controlada que preserva receita atual enquanto explora novas possibilidades.'
-      }
+        {
+          id: 'str-001-a',
+          text: 'Pivô completo para IA, demitindo equipe não-técnica',
+          riskLevel: 'high',
+          impact: 45,
+          consequences: 'Posicionamento de vanguarda, mas alto risco de fracasso e perda de competências atuais.'
+        },
+        {
+          id: 'str-001-b',
+          text: 'Manter estratégia atual e ignorar IA',
+          riskLevel: 'high',
+          impact: 5,
+          consequences: 'Preserva operação atual, mas risco alto de obsolescência rápida.'
+        },
+        {
+          id: 'str-001-c',
+          text: 'Integração gradual de IA mantendo core business',
+          riskLevel: 'medium',
+          impact: 35,
+          consequences: 'Evolução controlada que preserva receita atual enquanto explora novas possibilidades.'
+        }
     ]
   },
   {
@@ -145,22 +145,22 @@ export const dilemmas: Dilemma[] = [
       {
         id: 'str-002-a',
         text: 'Aceitar parceria exclusiva imediatamente',
-        impact: 20,
         riskLevel: 'low',
+        impact: 30,
         consequences: 'Segurança financeira e aprendizado, mas limita crescimento e independência.'
       },
       {
         id: 'str-002-b',
         text: 'Rejeitar e manter independência total',
-        impact: 10,
         riskLevel: 'medium',
+        impact: 25,
         consequences: 'Preserva liberdade estratégica, mas perde oportunidade de aceleração e estabilidade.'
       },
       {
         id: 'str-002-c',
         text: 'Negociar parceria não-exclusiva com escopo limitado',
-        impact: 35,
         riskLevel: 'medium',
+        impact: 40,
         consequences: 'Equilibra benefícios da parceria com flexibilidade, mas requer negociação complexa.'
       }
     ]
@@ -178,22 +178,22 @@ export const dilemmas: Dilemma[] = [
       {
         id: 'ops-001-a',
         text: 'Contratar transporte emergencial custando 3x mais',
-        impact: -15,
         riskLevel: 'medium',
+        impact: 30,
         consequences: 'Mantém clientes satisfeitos, mas compromete margem de lucro significativamente.'
       },
       {
         id: 'ops-001-b',
         text: 'Comunicar atrasos e oferecer descontos de 20%',
-        impact: -10,
         riskLevel: 'low',
+        impact: 20,
         consequences: 'Preserva relacionamento com clientes, mas reduz receita e pode abrir precedente.'
       },
       {
         id: 'ops-001-c',
         text: 'Buscar fornecedores alternativos com qualidade inferior',
-        impact: 25,
         riskLevel: 'high',
+        impact: 10,
         consequences: 'Resolve imediatamente, mas risco de reclamações por qualidade e perda de reputação.'
       }
     ]
@@ -211,22 +211,22 @@ export const dilemmas: Dilemma[] = [
       {
         id: 'cs-001-a',
         text: 'Ignorar completamente e esperar passar',
-        impact: -40,
         riskLevel: 'high',
+        impact: 5,
         consequences: 'Evita alimentar crise, mas pode ser visto como descaso e amplificar negatividade.'
       },
       {
         id: 'cs-001-b',
         text: 'Responder publicamente defendendo a empresa',
-        impact: -20,
         riskLevel: 'medium',
+        impact: 15,
         consequences: 'Mostra posição, mas pode gerar backlash e guerra de narrativas nas redes.'
       },
       {
         id: 'cs-001-c',
         text: 'Contatar cliente diretamente e resolver publicamente',
-        impact: 45,
         riskLevel: 'medium',
+        impact: 45,
         consequences: 'Transforma crise em oportunidade, demonstrando compromisso com satisfação.'
       }
     ]
@@ -244,22 +244,22 @@ export const dilemmas: Dilemma[] = [
       {
         id: 'tech-001-a',
         text: 'Migrar completamente em 30 dias com parada total',
-        impact: 30,
         riskLevel: 'high',
+        impact: 40,
         consequences: 'Resultados rápidos se bem-sucedido, mas alto risco de downtime e perda de vendas.'
       },
       {
         id: 'tech-001-b',
         text: 'Manter sistema atual e ignorar tecnologia',
-        impact: -35,
         riskLevel: 'high',
+        impact: 5,
         consequences: 'Evita riscos de migração, mas garante obsolescência competitiva gradual.'
       },
       {
         id: 'tech-001-c',
         text: 'Migração gradual em fases com sistema paralelo',
-        impact: 20,
         riskLevel: 'medium',
+        impact: 35,
         consequences: 'Minimiza riscos com transição controlada, mas demora mais e custa adicional.'
       }
     ]
